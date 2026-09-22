@@ -21,7 +21,6 @@ if __name__ == '__main__':
     print(f"  Local Access       : http://127.0.0.1:{port}")
     print(f"  Network (Mobile)   : http://{local_ip}:{port}")
     print(f"  Admin Login        : http://127.0.0.1:{port}/admin/login")
-    print(f"  Default Credentials: admin / admin123")
     print("=" * 65)
     print("  * Tip: Connect your mobile phone to the same Wi-Fi network and")
     print(f"    scan generated QR codes to stream videos directly!\n")
