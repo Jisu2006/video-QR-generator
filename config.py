@@ -55,8 +55,8 @@ class Config:
     BASE_URL = os.environ.get('BASE_URL', '').rstrip('/')
     
     # Default Admin Credentials
-    ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
-    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
+    # ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
+    # ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
 
     # Security settings
     SESSION_COOKIE_HTTPONLY = True
