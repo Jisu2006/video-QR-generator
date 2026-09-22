@@ -62,8 +62,8 @@ def create_app(config_name=None):
 
 def _init_default_admin(app):
     """Create default admin user if none exists in the database."""
-    default_username = app.config.get('ADMIN_USERNAME', 'admin')
-    default_password = app.config.get('ADMIN_PASSWORD', 'admin123')
+    # default_username = app.config.get('ADMIN_USERNAME', 'admin')
+    # default_password = app.config.get('ADMIN_PASSWORD', 'admin123')
     
     existing_admin = Admin.query.filter_by(username=default_username).first()
     if not existing_admin:
