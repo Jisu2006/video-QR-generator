@@ -36,10 +36,35 @@ document.addEventListener('DOMContentLoaded', () => {
   // Play / Pause toggles
   function togglePlay() {
     if (video.paused || video.ended) {
-      video.play().catch(e => console.log('Autoplay prevented:', e));
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          container.classList.add('playing');
+        }).catch(err => {
+          console.warn('Direct play error, attempting fallback:', err);
+          // Try playing muted if sound policy blocked it
+          video.muted = true;
+          video.play().then(() => {
+            container.classList.add('playing');
+            if (typeof showToast === 'function') {
+              showToast('Playing Muted', 'Click unmute icon to enable audio', 'info');
+            }
+          }).catch(e2 => {
+            console.error('Video play completely failed:', e2);
+          });
+        });
+      }
     } else {
       video.pause();
     }
+  }
+
+  // Handle center play button directly
+  if (centerPlayBtn) {
+    centerPlayBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      togglePlay();
+    });
   }
 
   container.addEventListener('click', (e) => {
@@ -48,7 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
     togglePlay();
   });
 
-  if (playPauseBtn) playPauseBtn.addEventListener('click', togglePlay);
+  if (playPauseBtn) playPauseBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    togglePlay();
+  });
 
   video.addEventListener('play', () => {
     container.classList.add('playing');
@@ -61,6 +89,13 @@ document.addEventListener('DOMContentLoaded', () => {
     container.classList.remove('hide-controls');
     if (playPauseBtn) playPauseBtn.innerHTML = '<i class="ri-play-fill"></i>';
     clearTimeout(controlsTimeout);
+  });
+
+  video.addEventListener('error', (e) => {
+    console.error('Video Element Error:', video.error);
+    if (typeof showToast === 'function') {
+      showToast('Video Notice', 'Your browser could not stream this codec directly. Please use Download Video.', 'warning');
+    }
   });
 
   // Time formatting (MM:SS or HH:MM:SS)

@@ -15,18 +15,21 @@
       <video 
         id="main-video-player" 
         class="video-element"
-        preload="metadata"
+        src="{{ stream_url }}"
+        preload="auto"
         playsinline
         webkit-playsinline
+        x5-playsinline
       >
         <source src="{{ stream_url }}" type="{{ video.mime_type }}">
-        Your browser does not support the HTML5 video player. Please upgrade your browser.
+        <source src="{{ stream_url }}" type="video/mp4">
+        Your browser does not support HTML5 video streaming. Please use the download link below.
       </video>
 
       <!-- Centered Animated Play Button -->
-      <div class="center-play-btn" id="center-play-btn">
+      <button type="button" class="center-play-btn" id="center-play-btn" aria-label="Play Video">
         <i class="ri-play-fill"></i>
-      </div>
+      </button>
 
       <!-- Video Controls Overlay -->
       <div class="player-controls" id="player-controls">
@@ -107,6 +110,9 @@
 
       <!-- Quick Action Buttons -->
       <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <a href="{{ stream_url }}" download="{{ video.original_filename }}" class="btn btn-secondary btn-sm" id="watch-download-btn" title="Download Video File">
+          <i class="ri-download-2-line"></i> Download Video
+        </a>
         <button type="button" class="btn btn-secondary btn-sm" data-copy="{{ video.video_url }}" id="watch-copy-btn">
           <i class="ri-file-copy-line"></i> Copy Link
         </button>

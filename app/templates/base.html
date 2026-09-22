@@ -92,7 +92,7 @@
     <footer class="footer">
       <div class="container footer-content">
         <div>
-          <strong>Video QR Generator</strong> &copy; {{ now().year if now else '2026' }} &mdash; Fast, High-Resolution Video QR Engine.
+          <strong>Video QR Generator</strong> &copy; {{ current_year or 2026 }} &mdash; Fast, High-Resolution Video QR Engine.
         </div>
         <div style="display: flex; gap: 1rem; align-items: center;">
           <span class="badge badge-emerald"><i class="ri-shield-check-line"></i> Range-Streaming Ready</span>

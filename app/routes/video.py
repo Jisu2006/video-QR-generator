@@ -46,7 +46,11 @@ def stream_video(unique_id):
     if not os.path.exists(video.file_path):
         abort(404, description="Video file not found on server disk.")
 
-    return stream_video_partial(video.file_path, video.mime_type)
+    mimetype = video.mime_type if video.mime_type else 'video/mp4'
+    response = send_file(video.file_path, mimetype=mimetype, conditional=True)
+    response.headers['Accept-Ranges'] = 'bytes'
+    response.headers['Cache-Control'] = 'public, max-age=3600'
+    return response
 
 
 @video_bp.route('/qr/<unique_id>')

@@ -28,6 +28,15 @@ def create_app(config_name=None):
     app.register_blueprint(video_bp)
     app.register_blueprint(api_bp)
 
+    # Context processor for global template variables
+    @app.context_processor
+    def inject_global_vars():
+        from datetime import datetime
+        return {
+            'now': datetime.utcnow,
+            'current_year': datetime.utcnow().year
+        }
+
     # Root route redirect
     @app.route('/')
     def root_redirect():

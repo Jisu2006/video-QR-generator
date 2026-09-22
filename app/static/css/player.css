@@ -61,7 +61,7 @@
   cursor: pointer;
   transition: var(--transition-bounce);
   z-index: 10;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 .video-container:hover .center-play-btn {
