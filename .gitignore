@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Environment Configuration
+.env
+
+# Database
+*.db
+*.sqlite3
+
+# Uploads & User Generated Static Assets
+app/static/uploads/videos/*
+!app/static/uploads/videos/.gitkeep
+app/static/qr_codes/*
+!app/static/qr_codes/.gitkeep
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

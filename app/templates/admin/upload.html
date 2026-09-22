@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Video & Generate QR - Video QR Generator{% endblock %}
+
+{% block content %}
+<div style="max-width: 720px; margin: 0 auto;">
+  <!-- Header -->
+  <div style="text-align: center; margin-bottom: 2rem;">
+    <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Upload Video</h1>
+    <p style="color: var(--text-secondary); font-size: 1rem;">
+      Upload any video file to automatically generate a unique public URL and high-resolution QR Code.
+    </p>
+  </div>
+
+  <div class="glass-card">
+    <form id="video-upload-form" method="POST" action="{{ url_for('upload.upload_video') }}" enctype="multipart/form-data">
+      <!-- Hidden File Input -->
+      <input type="file" id="video-file-input" name="video_file" accept=".mp4,.webm,.mov,.mkv,.avi,.m4v" style="display: none;" required>
+
+      <!-- Dropzone -->
+      <div id="upload-dropzone" class="upload-dropzone">
+        <div class="dropzone-icon">
+          <i class="ri-upload-cloud-2-line"></i>
+        </div>
+        <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Drag & Drop your video file here</h3>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.25rem;">
+          or click anywhere to browse from your computer / mobile device
+        </p>
+        <div style="display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-indigo">MP4</span>
+          <span class="badge badge-cyan">WEBM</span>
+          <span class="badge badge-emerald">MOV</span>
+          <span class="badge badge-amber">MKV / AVI</span>
+          <span class="badge badge-indigo">Max {{ max_mb }} MB</span>
+        </div>
+      </div>
+
+      <!-- Selected File Preview Card -->
+      <div id="file-preview-card" style="display: none; background: var(--bg-tertiary); border: 1px solid var(--border-glow); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 1rem; overflow: hidden;">
+            <div style="width: 48px; height: 48px; border-radius: var(--radius-sm); background: var(--gradient-brand); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">
+              <i class="ri-video-line"></i>
+            </div>
+            <div style="overflow: hidden;">
+              <div id="file-name-display" style="font-weight: 700; color: var(--text-primary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"></div>
+              <div id="file-size-display" style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;"></div>
+            </div>
+          </div>
+          <button type="button" id="remove-file-btn" class="btn btn-secondary btn-sm" title="Change file">
+            <i class="ri-refresh-line"></i> Change
+          </button>
+        </div>
+      </div>
+
+      <!-- Metadata Fields -->
+      <div style="margin-top: 1.5rem;">
+        <div class="form-group">
+          <label class="form-label" for="video-title-input">
+            <i class="ri-pencil-line"></i> Video Title / Name
+          </label>
+          <input 
+            type="text" 
+            id="video-title-input" 
+            name="title" 
+            class="form-control" 
+            placeholder="e.g. Product Demo 2026, Wedding Highlights, Tutorial..."
+          >
+          <div class="input-hint">Leave blank to automatically use the file name.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="video-description-input">
+            <i class="ri-file-text-line"></i> Description <span style="color: var(--text-muted); font-weight: normal;">(Optional)</span>
+          </label>
+          <textarea 
+            id="video-description-input" 
+            name="description" 
+            class="form-control" 
+            placeholder="Add brief notes or context for viewers who scan this video..."
+          ></textarea>
+        </div>
+
+        <!-- Network QR URL Mode -->
+        <div class="form-group">
+          <label class="form-label">
+            <i class="ri-qr-scan-line"></i> QR Code URL Target
+          </label>
+          <div style="background: var(--bg-tertiary); padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-glass); font-size: 0.85rem;">
+            {% if configured_base %}
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <span><i class="ri-checkbox-circle-fill" style="color: var(--accent-emerald);"></i> Using Configured Domain:</span>
+                <strong style="color: var(--accent-cyan);">{{ configured_base }}</strong>
+              </div>
+            {% else %}
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                  <i class="ri-wifi-line" style="color: var(--accent-amber);"></i> 
+                  Mobile Wi-Fi Scannable IP: <strong style="color: var(--accent-cyan);">http://{{ local_ip }}:5000</strong>
+                </div>
+                <span class="badge badge-emerald">Ready for Mobile Phone Scan</span>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-time Upload Progress Bar -->
+      <div id="upload-progress-container" class="progress-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-size: 0.85rem;">
+          <span style="font-weight: 600; color: var(--text-primary);"><i class="ri-upload-2-line"></i> Uploading to Server...</span>
+          <span id="progress-percent" style="font-weight: 700; color: var(--accent-primary);">0%</span>
+        </div>
+        <div class="progress-track">
+          <div id="progress-bar-fill" class="progress-bar-fill"></div>
+        </div>
+        <div class="progress-meta">
+          <span id="progress-speed"><i class="ri-speed-line"></i> Calculating...</span>
+          <span id="progress-time">Estimating time...</span>
+        </div>
+      </div>
+
+      <!-- Submit CTA Button -->
+      <div style="margin-top: 1.75rem;">
+        <button type="submit" id="submit-upload-btn" class="btn btn-primary btn-lg" style="width: 100%;" disabled>
+          <i class="ri-qr-code-line"></i> Upload & Generate QR Code
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+{% endblock %}

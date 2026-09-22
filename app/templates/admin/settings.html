@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}System Settings - Video QR Generator{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+  <div style="margin-bottom: 2rem;">
+    <h1 style="font-size: 2rem;">Settings & Configuration</h1>
+    <p style="color: var(--text-secondary); margin-top: 0.25rem;">
+      Configure custom domains, Wi-Fi mobile test URLs, and update administrative credentials.
+    </p>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 1.75rem;">
+    <!-- Base URL & Domain Configuration -->
+    <div class="glass-card">
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
+        <div style="width: 42px; height: 42px; border-radius: var(--radius-sm); background: rgba(99, 102, 241, 0.15); color: var(--accent-primary); display: flex; align-items: center; justify-content: center; font-size: 1.35rem;">
+          <i class="ri-global-line"></i>
+        </div>
+        <div>
+          <h2 style="font-size: 1.25rem;">Domain & QR URL Settings</h2>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">Set the public root URL used when creating video QR codes.</p>
+        </div>
+      </div>
+
+      <form method="POST" action="{{ url_for('admin.settings') }}">
+        <input type="hidden" name="action" value="update_domain">
+
+        <div class="form-group">
+          <label class="form-label" for="base_url_input">Base URL / Domain</label>
+          <input 
+            type="url" 
+            id="base_url_input" 
+            name="base_url" 
+            class="form-control" 
+            value="{{ current_base }}" 
+            placeholder="e.g. https://video.yourbrand.com or http://192.168.1.15:5000"
+          >
+          <div class="input-hint">
+            Leave empty to automatically use your Wi-Fi LAN IP (<code>{{ suggested_lan_url }}</code>) so phones on the same Wi-Fi can scan and open videos directly.
+          </div>
+        </div>
+
+        <div style="background: var(--bg-tertiary); padding: 1rem; border-radius: var(--radius-md); font-size: 0.85rem; margin-bottom: 1.25rem; border: 1px dashed var(--border-glass);">
+          <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.35rem;">
+            <i class="ri-smartphone-line" style="color: var(--accent-emerald);"></i> Mobile Phone Testing Options:
+          </div>
+          <ul style="padding-left: 1.25rem; color: var(--text-secondary); line-height: 1.6;">
+            <li><strong>Option 1 (Same Wi-Fi):</strong> Set Base URL to <code>{{ suggested_lan_url }}</code>. Any phone on the same Wi-Fi will open the video instantly.</li>
+            <li><strong>Option 2 (Public Tunnel):</strong> Use free tools like <code>ngrok http 5000</code> or Cloudflare Tunnel and paste the HTTPS URL above.</li>
+            <li><strong>Option 3 (Production Server):</strong> Enter your registered domain like <code>https://video.yourdomain.com</code>.</li>
+          </ul>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+          <i class="ri-save-line"></i> Save Domain Settings
+        </button>
+      </form>
+    </div>
+
+    <!-- Admin Password Change -->
+    <div class="glass-card">
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
+        <div style="width: 42px; height: 42px; border-radius: var(--radius-sm); background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); display: flex; align-items: center; justify-content: center; font-size: 1.35rem;">
+          <i class="ri-lock-password-line"></i>
+        </div>
+        <div>
+          <h2 style="font-size: 1.25rem;">Change Admin Password</h2>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">Update the password used to access the administrator dashboard.</p>
+        </div>
+      </div>
+
+      <form method="POST" action="{{ url_for('admin.settings') }}">
+        <input type="hidden" name="action" value="change_password">
+
+        <div class="form-group">
+          <label class="form-label" for="current_password">Current Password</label>
+          <input type="password" id="current_password" name="current_password" class="form-control" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label" for="new_password">New Password</label>
+            <input type="password" id="new_password" name="new_password" class="form-control" required minlength="6">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="confirm_password">Confirm New Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" class="form-control" required minlength="6">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-secondary" style="margin-top: 0.5rem;">
+          <i class="ri-key-line"></i> Update Password
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

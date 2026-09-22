@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Video QR Generator{% endblock %} - Instant Video QR Code Platform</title>
+  
+  <!-- Meta SEO -->
+  <meta name="description" content="Upload videos and instantly generate high-resolution QR codes that stream directly to mobile devices and browsers.">
+  <meta name="theme-color" content="#6366f1">
+  
+  <!-- RemixIcon CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+  
+  <!-- Custom Design System -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <!-- Animated Background Mesh Blobs -->
+  <div class="bg-mesh">
+    <div class="bg-mesh-blob-1"></div>
+    <div class="bg-mesh-blob-2"></div>
+  </div>
+
+  <div class="app-wrapper">
+    <!-- Navbar -->
+    <header class="navbar">
+      <div class="container nav-container">
+        <a href="{{ url_for('admin.dashboard') if session.get('admin_logged_in') else url_for('auth.login') }}" class="nav-brand" id="nav-brand-logo">
+          <div class="brand-icon">
+            <i class="ri-qr-scan-2-line"></i>
+          </div>
+          <span>Video<span style="color: var(--accent-primary);">QR</span></span>
+        </a>
+
+        {% if session.get('admin_logged_in') %}
+        <nav>
+          <ul class="nav-menu">
+            <li>
+              <a href="{{ url_for('admin.dashboard') }}" class="nav-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}" id="nav-link-dashboard">
+                <i class="ri-dashboard-3-line"></i> <span>Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('upload.upload_video') }}" class="nav-link {% if request.endpoint == 'upload.upload_video' %}active{% endif %}" id="nav-link-upload">
+                <i class="ri-upload-cloud-2-line"></i> <span>Upload Video</span>
+              </a>
+            </li>
+            <li>
+              <a href="{{ url_for('admin.settings') }}" class="nav-link {% if request.endpoint == 'admin.settings' %}active{% endif %}" id="nav-link-settings">
+                <i class="ri-settings-4-line"></i> <span>Settings</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+        {% endif %}
+
+        <div class="nav-actions">
+          <!-- Theme Toggle -->
+          <button type="button" class="btn-theme-toggle" id="theme-toggle-btn" title="Toggle Dark/Light Mode" aria-label="Toggle Theme">
+            <i class="ri-sun-line"></i>
+          </button>
+
+          {% if session.get('admin_logged_in') %}
+          <a href="{{ url_for('upload.upload_video') }}" class="btn btn-primary btn-sm" id="nav-btn-quick-upload">
+            <i class="ri-add-line"></i> <span>New Upload</span>
+          </a>
+          <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary btn-sm" id="nav-btn-logout" title="Log Out">
+            <i class="ri-logout-box-r-line"></i>
+          </a>
+          {% else %}
+          <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-sm" id="nav-btn-login">
+            <i class="ri-user-shared-line"></i> <span>Admin Login</span>
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </header>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Main Body Content -->
+    <main class="main-content">
+      <div class="container">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container footer-content">
+        <div>
+          <strong>Video QR Generator</strong> &copy; {{ now().year if now else '2026' }} &mdash; Fast, High-Resolution Video QR Engine.
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <span class="badge badge-emerald"><i class="ri-shield-check-line"></i> Range-Streaming Ready</span>
+          <span class="badge badge-indigo"><i class="ri-smartphone-line"></i> Mobile Optimized</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Main JavaScript -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  
+  <!-- Flashed Messages Integration -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          {% for category, message in messages %}
+            showToast('Notification', {{ message|tojson }}, {{ category|tojson }});
+          {% endfor %}
+        });
+      </script>
+    {% endif %}
+  {% endwith %}
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

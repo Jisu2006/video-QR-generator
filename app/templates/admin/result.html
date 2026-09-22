@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}QR Code Ready - {{ video.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  @media print {
+    body * { visibility: hidden; }
+    #printable-flyer, #printable-flyer * { visibility: visible; }
+    #printable-flyer {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      background: white !important;
+      color: black !important;
+      padding: 2rem !important;
+      border: 2px solid #000 !important;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 840px; margin: 0 auto;">
+  <!-- Success Badge Banner -->
+  <div style="text-align: center; margin-bottom: 2rem;">
+    <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 0.4rem 1rem; border-radius: 9999px; font-weight: 600; font-size: 0.9rem; margin-bottom: 1rem;">
+      <i class="ri-checkbox-circle-fill"></i> Video Uploaded & QR Code Generated Successfully!
+    </div>
+    <h1 style="font-size: 2.2rem;">{{ video.title }}</h1>
+    <p style="color: var(--text-secondary); font-size: 1rem; margin-top: 0.25rem;">
+      Scan the QR code with any smartphone camera to stream this video immediately.
+    </p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; align-items: start;">
+    <!-- QR Code Card -->
+    <div class="glass-card" id="printable-flyer" style="text-align: center; padding: 2rem;">
+      <div style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); display: inline-block; box-shadow: var(--shadow-md); margin-bottom: 1.5rem; border: 1px solid rgba(0, 0, 0, 0.08);">
+        <img 
+          src="{{ url_for('static', filename=video.qr_code_path) }}" 
+          alt="QR Code for {{ video.title }}" 
+          style="width: 260px; height: 260px; display: block; image-rendering: pixelated;"
+          id="result-qr-image"
+        >
+      </div>
+
+      <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem;">
+        <i class="ri-smartphone-line"></i> Scan with iPhone Camera or Android Google Lens
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.25rem;">
+        <a href="{{ url_for('video.download_qr', unique_id=video.unique_id) }}" class="btn btn-primary btn-lg" id="download-qr-btn">
+          <i class="ri-download-2-line"></i> Download 300 DPI QR (Print Ready)
+        </a>
+
+        <div style="display: flex; gap: 0.5rem;">
+          <button type="button" class="btn btn-secondary" style="flex: 1;" data-copy="{{ video.video_url }}" id="copy-link-btn">
+            <i class="ri-file-copy-line"></i> Copy Link
+          </button>
+          <a href="{{ video.video_url }}" target="_blank" class="btn btn-cyan" style="flex: 1;" id="open-video-btn">
+            <i class="ri-play-circle-line"></i> Open Video
+          </a>
+        </div>
+
+        <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()" style="margin-top: 0.25rem;">
+          <i class="ri-printer-line"></i> Print QR Code Flyer
+        </button>
+      </div>
+    </div>
+
+    <!-- Video Metadata & Scannable URL Card -->
+    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+      <div class="glass-card">
+        <h3 style="font-size: 1.15rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i class="ri-information-line" style="color: var(--accent-cyan);"></i> Video Details
+        </h3>
+
+        <div style="display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.9rem;">
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.5rem;">
+            <span style="color: var(--text-muted);">Unique Video ID</span>
+            <code style="color: var(--accent-cyan); font-family: 'JetBrains Mono', monospace; font-weight: 600;">{{ video.unique_id }}</code>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.5rem;">
+            <span style="color: var(--text-muted);">Original File</span>
+            <span style="color: var(--text-primary); font-weight: 500; text-overflow: ellipsis; overflow: hidden; max-width: 220px; white-space: nowrap;">
+              {{ video.original_filename }}
+            </span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.5rem;">
+            <span style="color: var(--text-muted);">File Size & Format</span>
+            <span>
+              <strong>{{ video.formatted_size }}</strong>
+              <span class="badge badge-indigo" style="font-size: 0.7rem; margin-left: 0.3rem;">
+                {{ video.mime_type.split('/')[-1]|upper }}
+              </span>
+            </span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.5rem;">
+            <span style="color: var(--text-muted);">Upload Time</span>
+            <span style="color: var(--text-primary);">{{ video.formatted_date }}</span>
+          </div>
+
+          {% if video.description %}
+          <div style="margin-top: 0.5rem;">
+            <div style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.25rem;">Description:</div>
+            <div style="color: var(--text-secondary); background: var(--bg-tertiary); padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.85rem; line-height: 1.5;">
+              {{ video.description }}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Scannable URL Display Card -->
+      <div class="glass-card">
+        <h3 style="font-size: 1.15rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+          <i class="ri-link-m" style="color: var(--accent-primary);"></i> Encoded Video URL
+        </h3>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+          This is the exact destination URL encoded inside the QR code:
+        </p>
+        <div style="background: var(--bg-tertiary); padding: 0.75rem 1rem; border-radius: var(--radius-md); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--accent-cyan); word-break: break-all; border: 1px solid var(--border-glass); margin-bottom: 1rem;">
+          {{ video.video_url }}
+        </div>
+
+        <div style="display: flex; gap: 0.75rem;">
+          <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary" style="flex: 1;">
+            <i class="ri-dashboard-line"></i> Back to Dashboard
+          </a>
+          <a href="{{ url_for('upload.upload_video') }}" class="btn btn-primary" style="flex: 1;">
+            <i class="ri-add-line"></i> Upload Another
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

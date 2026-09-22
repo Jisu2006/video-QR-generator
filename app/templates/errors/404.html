@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found (404) - Video QR Generator{% endblock %}
+
+{% block content %}
+<div style="max-width: 520px; margin: 4rem auto; text-align: center;">
+  <div class="glass-card" style="padding: 3rem 2rem;">
+    <div style="font-size: 4rem; font-family: 'Outfit', sans-serif; font-weight: 800; color: var(--accent-primary); line-height: 1; margin-bottom: 1rem;">
+      404
+    </div>
+    <h1 style="font-size: 1.5rem; margin-bottom: 0.75rem;">Video or Page Not Found</h1>
+    <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 2rem;">
+      The video link or QR code you scanned may have been removed or does not exist on this server.
+    </p>
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary">
+      <i class="ri-home-4-line"></i> Return to Home
+    </a>
+  </div>
+</div>
+{% endblock %}

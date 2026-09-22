@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}{{ video.title }} - Watch Video{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/player.css') }}">
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 1040px; margin: 0 auto;">
+  <!-- Main Video Player Container -->
+  <div class="player-wrapper" id="custom-player-wrapper">
+    <div class="video-container" id="custom-player-container">
+      <!-- HTML5 Video Element -->
+      <video 
+        id="main-video-player" 
+        class="video-element"
+        preload="metadata"
+        playsinline
+        webkit-playsinline
+      >
+        <source src="{{ stream_url }}" type="{{ video.mime_type }}">
+        Your browser does not support the HTML5 video player. Please upgrade your browser.
+      </video>
+
+      <!-- Centered Animated Play Button -->
+      <div class="center-play-btn" id="center-play-btn">
+        <i class="ri-play-fill"></i>
+      </div>
+
+      <!-- Video Controls Overlay -->
+      <div class="player-controls" id="player-controls">
+        <!-- Progress / Timeline Bar -->
+        <div class="timeline-container" id="timeline-container">
+          <div class="timeline">
+            <div class="timeline-buffered" id="timeline-buffered"></div>
+            <div class="timeline-progress" id="timeline-progress"></div>
+          </div>
+          <div class="timeline-thumb" id="timeline-thumb"></div>
+        </div>
+
+        <!-- Controls Toolbar Row -->
+        <div class="controls-row">
+          <!-- Left Controls -->
+          <div class="controls-left">
+            <button type="button" class="control-btn" id="play-pause-btn" title="Play / Pause (Space)">
+              <i class="ri-play-fill"></i>
+            </button>
+
+            <!-- Volume Control -->
+            <div class="volume-group">
+              <button type="button" class="control-btn" id="mute-btn" title="Mute / Unmute (M)">
+                <i class="ri-volume-up-fill"></i>
+              </button>
+              <input type="range" class="volume-slider" id="volume-slider" min="0" max="1" step="0.05" value="1" title="Volume">
+            </div>
+
+            <!-- Time Display -->
+            <div class="time-display">
+              <span id="current-time">00:00</span> / <span id="duration-time">00:00</span>
+            </div>
+          </div>
+
+          <!-- Right Controls -->
+          <div class="controls-right">
+            <!-- Playback Speed -->
+            <select class="speed-select" id="speed-select" title="Playback Speed">
+              <option value="0.5">0.5x</option>
+              <option value="0.75">0.75x</option>
+              <option value="1" selected>1.0x</option>
+              <option value="1.25">1.25x</option>
+              <option value="1.5">1.5x</option>
+              <option value="2">2.0x</option>
+            </select>
+
+            <!-- Picture-in-Picture -->
+            <button type="button" class="control-btn" id="pip-btn" title="Picture in Picture">
+              <i class="ri-picture-in-picture-2-line"></i>
+            </button>
+
+            <!-- Theater Mode -->
+            <button type="button" class="control-btn" id="theater-btn" title="Theater Mode (T)">
+              <i class="ri-aspect-ratio-line"></i>
+            </button>
+
+            <!-- Fullscreen -->
+            <button type="button" class="control-btn" id="fullscreen-btn" title="Fullscreen (F)">
+              <i class="ri-fullscreen-fill"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Video Metadata & Interaction Bar -->
+  <div class="glass-card video-meta-card">
+    <div class="video-header-row">
+      <div>
+        <h1 class="video-title-main">{{ video.title }}</h1>
+        <div class="video-badges">
+          <span class="badge badge-emerald"><i class="ri-eye-line"></i> {{ video.views_count }} views</span>
+          <span class="badge badge-indigo"><i class="ri-calendar-line"></i> {{ video.formatted_date }}</span>
+          <span class="badge badge-cyan"><i class="ri-hard-drive-line"></i> {{ video.formatted_size }}</span>
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button type="button" class="btn btn-secondary btn-sm" data-copy="{{ video.video_url }}" id="watch-copy-btn">
+          <i class="ri-file-copy-line"></i> Copy Link
+        </button>
+        <button type="button" class="btn btn-primary btn-sm" data-modal-target="watch-share-modal" id="watch-share-btn">
+          <i class="ri-qr-code-line"></i> Show QR Code
+        </button>
+      </div>
+    </div>
+
+    {% if video.description %}
+    <div class="video-desc">
+      {{ video.description }}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Share & QR Code Modal -->
+<div id="watch-share-modal" class="modal-backdrop">
+  <div class="modal-content" style="text-align: center;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+      <h3 style="font-size: 1.25rem;">Scan QR to Share Video</h3>
+      <button type="button" class="btn btn-secondary btn-icon-only" data-modal-close>
+        <i class="ri-close-line"></i>
+      </button>
+    </div>
+
+    <div style="background: white; padding: 1.25rem; border-radius: var(--radius-lg); display: inline-block; box-shadow: var(--shadow-md); margin-bottom: 1.25rem;">
+      <img src="{{ qr_url }}" alt="Video QR Code" style="width: 220px; height: 220px; display: block; image-rendering: pixelated;">
+    </div>
+
+    <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+      Point your smartphone camera at the QR code to open this video instantly.
+    </div>
+
+    <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+      <a href="{{ download_qr_url }}" class="btn btn-primary btn-sm">
+        <i class="ri-download-2-line"></i> Download QR Image
+      </a>
+      <button type="button" class="btn btn-secondary btn-sm" data-copy="{{ video.video_url }}">
+        <i class="ri-file-copy-line"></i> Copy Link
+      </button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/player.js') }}"></script>
+{% endblock %}
